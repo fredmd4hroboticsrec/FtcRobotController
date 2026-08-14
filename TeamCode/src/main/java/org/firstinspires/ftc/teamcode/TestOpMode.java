@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="test")
 public class TestOpMode extends OpMode {
@@ -12,6 +14,7 @@ public class TestOpMode extends OpMode {
     private DcMotor blMotor = null;
     private DcMotor brMotor = null;
     private double flWeight = 1;
+    private Servo linkServo = null;
     private double frWeight = 1;
     private double blWeight = 1;
     private double brWeight = 1;
@@ -26,6 +29,9 @@ public class TestOpMode extends OpMode {
         brMotor = hardwareMap.get(DcMotor.class, "brMotor");
         blMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         brMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        linkServo = hardwareMap.get(Servo.class, "Linkage");
+        linkServo.setDirection(Servo.Direction.FORWARD);
+        linkServo.scaleRange(0.5,0.8);
     }
 
     @Override
@@ -37,16 +43,26 @@ public class TestOpMode extends OpMode {
 
         double yMovement = gamepad1.right_stick_y;
         double xMovement = gamepad1.right_stick_x;
+        double twist = gamepad1.left_stick_x/10;
 
-        flPower = yMovement-xMovement;
-        frPower = yMovement+xMovement;
-        blPower = -yMovement-xMovement;
-        brPower = -yMovement+xMovement;
+        flPower = yMovement-xMovement+twist;
+        frPower = yMovement+xMovement-twist;
+        blPower = -yMovement-xMovement-twist;
+        brPower = -yMovement+xMovement+twist;
 
         flMotor.setPower(flPower*flWeight);
         frMotor.setPower(frPower*frWeight);
         blMotor.setPower(blPower*blWeight);
         brMotor.setPower(brPower*brWeight);
+
+        if (gamepad1.dpad_left) {
+            linkServo.setPosition(0.60);
+        } if (gamepad1.dpad_right) {
+            linkServo.setPosition(0.37);
+        } if (gamepad1.right_bumper) {
+            linkServo.setPosition(linkServo.getPosition()>0.48?0.44:0.48);
+        }
+
         if (change) {
             flWeight += ((gamepad1.dpad_up ? 0.01 : 0) - (gamepad1.dpad_down ? 0.01 : 0)) * (gamepad1.x ? 1 : 0);
             frWeight += ((gamepad1.dpad_up ? 0.01 : 0) - (gamepad1.dpad_down ? 0.01 : 0)) * (gamepad1.y ? 1 : 0);
@@ -57,6 +73,9 @@ public class TestOpMode extends OpMode {
         if (!gamepad1.dpad_up & !gamepad1.dpad_down) {
             change = true;
         }
+
+        telemetry.addData("Position: ", linkServo.getPosition());
+
         telemetry.addData("Weights:","FL:%.2f, FR:%.2f, BL:%.2f, BR:%.2f",flWeight,frWeight,blWeight,brWeight);
 
     }
