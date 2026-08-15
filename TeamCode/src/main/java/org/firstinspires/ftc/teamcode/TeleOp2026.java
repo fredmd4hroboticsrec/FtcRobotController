@@ -95,10 +95,10 @@ public class TeleOp2026 extends OpMode {
         blPower = -yMovement-xMovement-twist;
         brPower = -yMovement+xMovement+twist;
 
-        flMotor.setPower(flPower*flWeight*0.6);
-        frMotor.setPower(frPower*frWeight*0.6);
-        blMotor.setPower(blPower*blWeight*0.6);
-        brMotor.setPower(brPower*brWeight*0.6);
+        flMotor.setPower(flPower*flWeight*0.52);
+        frMotor.setPower(frPower*frWeight*0.52);
+        blMotor.setPower(blPower*blWeight*0.52);
+        brMotor.setPower(brPower*brWeight*0.52);
 
         if ((gamepad1.right_trigger>0.6 && targetAngle<76) && turned) {
             targetAngle+=15;
@@ -106,16 +106,17 @@ public class TeleOp2026 extends OpMode {
         }
         if ((gamepad1.left_trigger>0.6 && targetAngle>-76) && turned) {
             targetAngle-=15;
+            //noinspection UnusedAssignment
             turned = false;
         }
         turned = (gamepad1.left_trigger<0.2 && gamepad1.right_trigger<0.2);
 
-        if (gamepad1.dpad_left) {
+        if (gamepad1.dpad_up) {
             linkServo.setPosition(0.63);
-        } if (gamepad1.dpad_right) {
-            linkServo.setPosition(0.40);
+        } if (gamepad1.dpad_down) {
+            linkServo.setPosition(0.38);
         } if (gamepad1.right_bumper) {
-            linkServo.setPosition(linkServo.getPosition()>0.48?0.46:0.48);
+            linkServo.setPosition(0.47);
         }
 
         if (change) {
@@ -155,7 +156,7 @@ public class TeleOp2026 extends OpMode {
 
         telemetry.addLine()
                 .addData("status", ()->imu.getSystemStatus().toShortString())
-                .addData("calib", ()->imu.getCalibrationStatus().toString());
+                .addData("calibrated?", ()->imu.getCalibrationStatus().toString());
 
         telemetry.addLine()
                 .addData("heading", ()->formatAngle(angles.angleUnit, angles.firstAngle))
@@ -163,7 +164,7 @@ public class TeleOp2026 extends OpMode {
                 .addData("pitch", ()->formatAngle(angles.angleUnit, angles.thirdAngle));
 
         telemetry.addLine()
-                .addData("grvty", ()->gravity.toString())
+                .addData("gravity", ()->gravity.toString())
                 .addData("mag", ()->String.format(Locale.getDefault(), "%.3f",
                         Math.sqrt(gravity.xAccel*gravity.xAccel
                                 + gravity.yAccel*gravity.yAccel
